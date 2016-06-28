@@ -1,0 +1,99 @@
+<ion-view title="Home">
+
+  <!--<ion-nav-buttons side="right">-->
+    <!--<button class="button icon ion-clipboard" ng-click="#" ></button>-->
+  <!--</ion-nav-buttons>-->
+
+  <ion-content class="" padding="true">
+
+
+    <ion-scroll style="height:50vh">
+      <div class="list">
+
+        <a ng-repeat="(key, value) in data.items" class="item item-button-right">
+          <h2>{{value.name}}</h2>
+          <h4>${{value.price}}</h4>
+          <button class="button button-outline button-positive" data-ng-click="addToCart(value)">
+            <i class="icon ion-ios-plus-outline"></i>
+          </button>
+        </a>
+
+      </div>
+    </ion-scroll>
+
+
+
+
+
+  </ion-content>
+
+  <script id="modal.html" type="text/ng-template">
+    <ion-modal-view>
+      <ion-header-bar class="bar bar-header bar-positive">
+        <h1 class="title">Payment</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+      </ion-header-bar>
+      <ion-content class="padding">
+        <div class="list">
+          <label class="item item-input">
+            <span class="input-label">First Name</span>
+            <input ng-model="newUser.firstName" type="text">
+          </label>
+          <label class="item item-input">
+            <span class="input-label">Last Name</span>
+            <input ng-model="newUser.lastName" type="text">
+          </label>
+          <label class="item item-input">
+            <span class="input-label">Email</span>
+            <input ng-model="newUser.email" type="text">
+          </label>
+          <label class="item item-input">
+            <span class="input-label">Card</span>
+            <input ng-model="newUser.card" type="text">
+          </label>
+          <button class="button button-full button-positive" ng-click="createOrder()">Continue</button>
+        </div>
+      </ion-content>
+    </ion-modal-view>
+  </script>
+
+
+  <ion-footer-bar class="bar-subfooter bar-stable" style="height:25vh">
+
+    <div class="row">
+
+      <div class="col">
+        <ion-scroll>
+
+          <div class="list">
+            <a ng-repeat="(key, value) in data.cartItems"
+               href="#"
+               data-ng-click="removeFromCart(value)">
+              <p>{{value.name}} @ ${{value.price}} x {{value.quantity}}</p>
+            </a>
+          </div>
+        </ion-scroll>
+
+      </div>
+
+      <div class="col" style="text-align:right">
+        ${{data.cartTotal}}
+      </div>
+
+    </div>
+
+  </ion-footer-bar>
+
+  <ion-footer-bar align-title="left" class="bar-positive">
+
+    <div class="buttons" ng-click="clearCart();">
+      <button ng-disabled="data.cartTotal==0" class="button button-assertive">Clear Cart</button>
+    </div>
+
+    <div class="buttons pull-right" ng-click="modal.show()">
+      <button ng-disabled="data.cartTotal==0" class="button button-balanced">Purchase</button>
+    </div>
+
+  </ion-footer-bar>
+
+</ion-view>
