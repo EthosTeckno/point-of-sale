@@ -1,11 +1,11 @@
 ### Point of Sale Tutorial
-The distributed and increasingly connected nature of data management has enabled all sorts of workflows that were not possible until recently. Combined with the increasing popularity of mobile payment processors (Apply Pay, Bitcoin etc), we are seeing lots of POS type apps that enable small vendors to sell their wares.  
+The distributed and increasingly connected nature of data management allows for all sorts of workflows that were not possible before. Combined with the increasing popularity of mobile payment processors (Apply Pay, Bitcoin etc), we are seeing lots of POS type apps that enable small vendors to sell their products.  
 In this tutorial, we'll build a basic point of sale system. We'll create an HTML5 app using Ionic and Apache Cordova. This app will use pouchDB to seamlessly synch with a Cloudant backend.  
-Cloudant is going to allow us to seamlessly synch our data with our app, enabling users to work offline or when they have spotty connections. We'll also use Cloudant to aggregate transaction history and synch that data back to the client app.'
+Cloudant is going to allow us to seamlessly synch our data with our app, enabling users to work offline or when they have spotty connections. We'll also use Cloudant to aggregate transaction data.
 
 #### Step 1: Set up Cloudant
 ##### Get a Cloudant Account
-If you don't yet have one, you'll need a Cloudant account to do this exercise. It's free, so head on over to https://cloudant.com/sign-up/ and get one now. 
+If you don't yet have one, you'll need a Cloudant account. It's free to use, so head on over to https://cloudant.com/sign-up/ and get one now. 
 ##### Replicate the product database
 You need a product database, so we will replicate an existing database to your Cloudant account.
 1. Select 'Replication' from the left menu
@@ -19,7 +19,7 @@ Now that you have your own copy of the pos-products database, you need to create
 2. Click the 'Permissions' tab
 3. Give 'Other users' the _reader permission
 ##### Create the transactions database
-This database will store the transactions that your point of sale terminals process. Because these transactions are synched back to a central source, they can be aggregted and mined for business insight.
+This database will store the transactions that your point of sale terminals process. We will be synching data from your client app to your CLoudant account. However, there is nothing stopping you from synching multiple client apps to one Cloudant account, which would allow you to aggregate transaction data for analysis.
 1. Select 'Databases' from the left hand menu
 2. Select 'Create Database' from the top right
 3. Enter 'pos-transactions' as the DB name
@@ -40,23 +40,18 @@ Ionic is a UI framework for creating HTML5 apps. Under the covers, it uses Apach
 1. Install [node.js](https://nodejs.org/en/) if you do not already have it.
 2. Install the latest Cordova and Ionic command line tools:  
 `$ npm install -g cordova ionic`
-3. Initialize the project  
+3. Navigate to the directory you checkout out your app code in and initialize the project:  
 `$ ionic start point-of-sale`
 
-#### Step 4: Add pouchDB to your app
-In order to facilitate data synchronization between your Cloudant account and the app, we will add pouchDB as a local datastore in the app. pouchDB is a local storage database based off couchDB. Cloudant was also created from couchDB, and as a result, Cloudant and pouchDB share the same replication protocols, making them an easy way to keep data in synch between your server and mobile devices.
-1. download [pouchDB.js](https://pouchdb.com/)
-2. add pouchDB.js to your app
-
-#### Step 5: Replication: Connect your app with Cloudant
+#### Step 4: Replication: Connect your app with Cloudant
 One of the goals of this demo is to highlight how different data synchronization methods can be used in every day applications. This app will demonstrate:
-1. Bi-directional synchronization of product data between the client app and Cloudant
+1. Repliction of product data from Cloudant to the client app
 - change the `cloudantAccount` variable on line 29 of /www/js/app.js to your Cloudant acccount name
 2. Local storage of items in the user's cart within the client app
-3. Ad-hoc retrieval of transaction data from Cloudant  
+3. Repliction of transaction data from the client app to Cloudant. This piece of the puzzle must be able to be used offline. For instance, what if a user doesn't have an internet connection, and they need to sell products with cash?  
 - change the `apiKey` and `apiPass` variables on lines 30-31 of /www/js/app.js to be the values you recorded earlier while setting up your pos-transactions db
 
-#### Step 6: Build and deploy your app
+#### Step 5: Build and deploy your app
 It's time to see the app in action. You can build and deploy the app to a mobile device or to your browser window.  
 
 To emulate in an iOS simulator:
@@ -78,3 +73,7 @@ To deploy to a connected android device:
 To see the resulting app in your browser
 1. Run this command from your projects root folder: `$ ionic serve`
 2. navigate to [http://localhost:8100](http://localhost:8100)
+
+#### Conclusion
+As you use the app, you'll notice that the transactions page will show a yellow indicator if a transaction has not yet synched to Cloudant, and a green checkmark after it synchs. Play around with it by turning your wifi on/off to see how if would act in a realistic scenario.  
+You can see how easy it is to create a cross-platform mobile app that seamlessly synchs data between server and app, while tolerating intermittent connectivity.

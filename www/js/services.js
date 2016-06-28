@@ -207,18 +207,36 @@ angular.module('app.services', [])
 
     return {
       initialize: function (account, apiKey, apiPass, databaseName) {
+
         database = new PouchDB(databaseName);
-        var options = {
+
+        // initialize one way replication to master transaction db in Cloudant
+        database.replicate.to("https://"+account+".cloudant.com/"+databaseName, {
           auth: {
             username: apiKey,
             password: apiPass,
           },
           live: true,
           retry: true
-        }
-        database.sync("https://"+account+".cloudant.com/"+databaseName, options);
+        }).on('change', function(info) {
+          console.log('TransactionDB change', info);
+          $rootScope.$broadcast("TransactionDB:replicationOK", info);
+
+
+        }).on('paused', function(info) {
+          console.log('TransactionDB paused', info);
+        }).on('active', function(info) {
+          console.log('TransactionDB active', info);
+        }).on('denied', function(info) {
+          console.log('TransactionDB denied', info);
+        }).on('complete', function(info) {
+          console.log('TransactionDB complete', info);
+        }).on('error', function(info) {
+          console.log('TransactionDB error', info);
+        });
 
       },
+
       startListening: function () {
         changeListener = database.changes({
           live: true,
@@ -234,9 +252,26 @@ angular.module('app.services', [])
       stopListening: function () {
         changeListener.cancel();
       },
+      empty: function() {
+
+        var rows = [];
+        database.allDocs()
+          .then(function(result){
+
+            for(var i=0; i<result.rows.length; i++) {
+              $q.when(database.remove(result.rows[i].id, result.rows[i].value.rev));
+            }
+
+          }).catch(function(err){
+
+        });
+
+      },
+
       sync: function (remoteDatabase) {
         database.sync(remoteDatabase, {live: true, retry: true});
       },
+
       save: function (jsonDocument) {
         var deferred = $q.defer();
         if (!jsonDocument._id) {
@@ -259,6 +294,17 @@ angular.module('app.services', [])
       },
       get: function (documentId) {
         return database.get(documentId);
+      },
+      getAll: function() {
+        database.allDocs({include_docs: true}).then(function(response){
+          console.log(response);
+          var arr = [];
+          for(vari=0; i<response.rows.length; i++) {
+            arr.push(response.rows[i].doc);
+          }
+          return arr;
+
+        });
       },
       destroy: function () {
         database.destroy();

@@ -2,6 +2,10 @@ angular.module('app.controllers', [])
 
 .controller('homeCtrl', function($scope, $rootScope, ProductDB, CartDB, TransactionDB, $q, $ionicModal) {
 
+  $rootScope.data = {
+    transactions:{}
+  };
+
   $scope.data = {
     items: {},
     cartItems: {},
@@ -39,7 +43,8 @@ angular.module('app.controllers', [])
     var doc = {
       items:$scope.data.cartItems,
       total:$scope.data.cartTotal,
-      time:JSON.stringify(a)
+      time:Date.now(),
+      synched:false
     }
 
     // post order doc to transaction db
@@ -55,6 +60,7 @@ angular.module('app.controllers', [])
 
   $scope.clearCart = function() {
     CartDB.empty();
+    //TransactionDB.empty();
   }
 
 
@@ -81,16 +87,46 @@ angular.module('app.controllers', [])
     $scope.$apply();
   });
 
+  $rootScope.$on("TransactionDB:replicationOK", function(event, data) {
+    console.log("TransactionDB:replicationOK",event,data);
+    for(var i=0; i<data.docs.length; i++) {
+      $rootScope.data.transactions[data.docs[i]._id].synched = true;
+      TransactionDB.save($rootScope.data.transactions[data.docs[i]._id]);
+    }
+    $scope.$apply();
+  });
+
+  $rootScope.$on("TransactionDB:change", function(event, data) {
+    $rootScope.data.transactions[data.doc._id] = data.doc;
+    $scope.$apply();
+  });
+
+  $rootScope.$on("TransactionDB:delete", function(event, data) {
+    delete $rootScope.data.transactions[data.doc._id];
+    $scope.$apply();
+  });
+
 })
 
-.controller('cartCtrl', function($scope) {
+.controller('transactionsCtrl', function($scope, $rootScope, TransactionDB) {
 
-})
+  $rootScope.$on("TransactionDB:replicationOK", function(event, data) {
+    console.log("TransactionDB:replicationOK",event,data);
+    for(var i=0; i<data.docs.length; i++) {
+      $rootScope.data.transactions[data.docs[i]._id].synched = true;
+      TransactionDB.save($rootScope.data.transactions[data.docs[i]._id]);
+    }
+    $scope.$apply();
+  });
 
-.controller('transactionHistoryCtrl', function($scope) {
+  $rootScope.$on("TransactionDB:change", function(event, data) {
+    $rootScope.data.transactions[data.doc._id] = data.doc;
+    $scope.$apply();
+  });
 
-})
-
-.controller('productCtrl', function($scope) {
+  $rootScope.$on("TransactionDB:delete", function(event, data) {
+    delete $rootScope.data.transactions[data.doc._id];
+    $scope.$apply();
+  });
 
 });

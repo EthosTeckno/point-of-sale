@@ -1,0 +1,14 @@
+<ion-view id="page4" title="Transaction History">
+  <ion-content class="" padding="true">
+    <ion-scroll>
+      <div class="list">
+        <div class="item item-icon-right" ng-repeat="(key, value) in data.transactions">
+          <i ng-if="value.synched" class="icon ion-ios-checkmark balanced"></i>
+          <i ng-if="!value.synched" class="icon ion-ios-circle-filled energized"></i>
+          <h2>${{value.total}}</h2>
+          <h4>{{value.time | date:"MM/dd/yyyy 'at' h:mma"}}</h4>
+        </div>
+      </div>
+    </ion-scroll>
+  </ion-content>
+</ion-view>

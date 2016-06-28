@@ -14,10 +14,10 @@ angular.module('app.routes', [])
     controller: 'homeCtrl'
   })
 
-  .state('history', {
-    url: '/history',
-    templateUrl: 'templates/history.html',
-    controller: 'historyCtrl'
+  .state('transactions', {
+    url: '/transactions',
+    templateUrl: 'templates/transactions.html',
+    controller: 'transactionsCtrl'
   })
 
   .state('config', {
